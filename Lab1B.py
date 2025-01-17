@@ -32,7 +32,10 @@ reference_image = cv2.imread(reference_image_path)
 # Lọc nhiễu ảnh
 blurred = cv2.GaussianBlur(image, (7, 7), 0)
 clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-enhanced = clahe.apply(cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY))
+# clipLimit=2.0: Giới hạn cắt để ngăn quá sáng ở vùng nhỏ
+# tileGridSize=(8, 8): Chia ảnh thành các ô 8x8 để tăng cường tương phản cục bộ
+enhanced = clahe.apply(cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)) # Ảnh xám đã tăng cường tương phản
+
 
 # Phân ngưỡng bằng Otsu
 _, thresh = cv2.threshold(enhanced, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
@@ -55,7 +58,7 @@ if decoded_objects:
 else:
     print("Can't decode QR code")
         
-# Hiển thị kết quả
+# Hiển thị kết quả tương đồng
 print(f"Similarity: {similarity_percentage:.2f}")
 
 plt.figure(figsize=(10, 5))

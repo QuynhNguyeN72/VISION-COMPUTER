@@ -46,24 +46,24 @@ contours, _ = cv2.findContours(binary_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIM
 qr_contour = None
 max_area = 0
 for contour in contours:
-    epsilon = 0.02 * cv2.arcLength(contour, True)
-    approx = cv2.approxPolyDP(contour, epsilon, True)
+    epsilon = 0.02 * cv2.arcLength(contour, True) # Tính chu vi đường bao. True cho biết đường bao là một hình kín.
+    approx = cv2.approxPolyDP(contour, epsilon, True) # Tối giản đường bao bằng cách giảm số đỉnh (cạnh) dựa trên khoảng cách epsilon
     
-    if len(approx) == 4 and cv2.contourArea(approx) > max_area:
+    if len(approx) == 4 and cv2.contourArea(approx) > max_area: # Kiểm tra xem đường bao có đúng 4 đỉnh không?
         qr_contour = approx
-        max_area = cv2.contourArea(approx)
+        max_area = cv2.contourArea(approx) # Tính diện tích đường bao.
 
-if qr_contour is not None:
-    points = qr_contour.reshape(4, 2)
-    rect = np.zeros((4, 2), dtype="float32")
+if qr_contour is not None: # Nếu tìm thấy đường bao hợp lệ
+    points = qr_contour.reshape(4, 2) # Chuyển các đỉnh đường bao thành mảng tọa độ 2D (4 điểm)
+    rect = np.zeros((4, 2), dtype="float32") # Tạo mảng lưu tọa độ các đỉnh sau khi sắp xếp.
 
-    s = points.sum(axis=1)
-    rect[0] = points[np.argmin(s)]  # top-left
-    rect[2] = points[np.argmax(s)]  # bottom-right
+    s = points.sum(axis=1) # Tính tổng tọa độ x+y của từng điểm.
+    rect[0] = points[np.argmin(s)]  # top-left có tổng nhỏ nhất
+    rect[2] = points[np.argmax(s)]  # bottom-right có tổng lớn nhất
 
-    diff = np.diff(points, axis=1)
-    rect[1] = points[np.argmin(diff)]  # top-right
-    rect[3] = points[np.argmax(diff)]  # bottom-left
+    diff = np.diff(points, axis=1) # Tính hiệu tọa độ y−x của từng điểm.
+    rect[1] = points[np.argmin(diff)]  # top-right có hiệu nhỏ nhất
+    rect[3] = points[np.argmax(diff)]  # bottom-left có hiệu lớn nhất
 
     width = int(max(np.linalg.norm(rect[0] - rect[1]), np.linalg.norm(rect[2] - rect[3])))
     height = int(max(np.linalg.norm(rect[1] - rect[2]), np.linalg.norm(rect[3] - rect[0])))
@@ -72,10 +72,10 @@ if qr_contour is not None:
         [width - 1, 0],
         [width - 1, height - 1],
         [0, height - 1]
-    ], dtype="float32")
+    ], dtype="float32") # Tạo ma trận đích (tọa độ vuông vắn) cho vùng mã QR sau khi làm phẳng
 
-    matrix = cv2.getPerspectiveTransform(rect, dst)
-    warped = cv2.warpPerspective(image, matrix, (width, height))
+    matrix = cv2.getPerspectiveTransform(rect, dst) # Tính ma trận biến đổi phối cảnh để "làm phẳng" mã QR.
+    warped = cv2.warpPerspective(image, matrix, (width, height)) # Áp dụng phép biến đổi phối cảnh, trả về ảnh mã QR đã được làm phẳn
     
     # So sánh ảnh sau xử lý với ảnh tham chiếu
     similarity_percentage = compare_images(warped, reference_image)
@@ -90,7 +90,7 @@ if qr_contour is not None:
     else:
         print("Can't decode QR code")
 
-    # In kết quả
+    # In kết quả tương đồng
     print(f"Similarity: {similarity_percentage:.2f}")
 
     # Hiển thị ảnh
