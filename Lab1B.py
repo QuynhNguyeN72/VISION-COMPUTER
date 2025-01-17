@@ -23,10 +23,10 @@ def compare_images(image1, image2):
     return similarity_percentage
 
 # Đọc ảnh
-image_path = "C:\Demo\VC\VISION-COMPUTER\distorted_qrcode2.png"
+image_path = r"C:\Demo\VC\VISION-COMPUTER\test2_noise.png"
 image = cv2.imread(image_path)
 
-reference_image_path = "C:\Demo\VC\VISION-COMPUTER\qr_code_original.png"
+reference_image_path = r"C:\Demo\VC\VISION-COMPUTER\test2_origi.png"
 reference_image = cv2.imread(reference_image_path)
 
 # Lọc nhiễu ảnh
